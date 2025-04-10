@@ -1,0 +1,28 @@
+name: CI - Build & Lint
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/fastapi-security-backend/requirements.txt
+
+      - name: Lint check (basic SAST)
+        run: |
+          pip install flake8
+          flake8 .
