@@ -18,6 +18,7 @@ build:
 
 # Run Container (Detached Mode)
 run:
+	docker rm -f fastapi-app-container 2>/dev/null || true
 	docker run -d -p $(PORT):8000 --name $(CONTAINER_NAME) $(DOCKER_IMAGE)
 
 # Stop Running Container
