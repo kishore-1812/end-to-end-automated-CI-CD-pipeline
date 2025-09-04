@@ -50,7 +50,7 @@ jobs:
           pip install checkov
           checkov -d terraform/ -o json > checkov-report.json || echo "Checkov found issues"
       - name: Upload Checkov report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: checkov-report
           path: checkov-report.json
