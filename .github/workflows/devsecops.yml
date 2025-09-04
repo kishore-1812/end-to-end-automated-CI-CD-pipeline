@@ -61,7 +61,7 @@ jobs:
           docker build -t fastapi-app:latest src/fastapi
           ./trivy image --severity HIGH,CRITICAL --exit-code 1 --format json --output trivy-report.json fastapi-app:latest || echo "Trivy found issues"
       - name: Upload Trivy report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-report
           path: trivy-report.json
