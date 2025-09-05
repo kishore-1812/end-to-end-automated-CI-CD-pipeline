@@ -89,11 +89,11 @@ jobs:
     needs: build_and_scan
     runs-on: ubuntu-latest
 
-    services:
-      web:
-        image: fastapi-app:latest
-        ports:
-          - 8000:8000
+    # services:
+    #   web:
+    #     image: fastapi-app:latest
+    #     ports:
+    #       - 8000:8000
 
     steps:
       - name: Checkout repo
@@ -102,6 +102,15 @@ jobs:
       - name: Build FastAPI image
         run: docker build -t fastapi-app:latest -f src/fastapi/fastAPI.dockerfile src/fastapi
 
+      - name: Run FastAPI container (background)
+        run: docker run -d -p 8000:8000 --name fastapi-test fastapi-app:latest
+
+      - name: Check for the container's health
+        run: |
+          for i in {1..10}; do
+            curl --fail http://localhost:8000/health && break || sleep 3
+          done
+          
       - name: Run OWASP ZAP baseline scan
         uses: zaproxy/action-baseline@v0.8.0
         with:
