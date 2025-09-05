@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Form
 import logging
-app = FastAPI()
 
+app = FastAPI()
 
 logging.basicConfig(
     filename='/app/logs/fastapi.log',
@@ -10,12 +10,14 @@ logging.basicConfig(
 )
 
 
-
 @app.get("/health")
 def health():
     return {"status": "alive"}
 
+
 @app.post("/login")
-def login(user: str = Form(...), password: str = Form(...)):
-    return {"message":f"Welcome {user}"
-}
+def login(
+    user: str = Form(...),
+    password: str = Form(...)
+):
+    return {"message": f"Welcome {user}"}
