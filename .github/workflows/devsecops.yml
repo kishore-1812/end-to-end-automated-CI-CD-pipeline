@@ -91,13 +91,13 @@ jobs:
 
     services:
       web:
-        image: fastapi-app
+        image: fastapi-app:latest
         ports:
           - 8000:8000
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build FastAPI image
         run: docker build -t fastapi-app:latest -f src/fastapi/fastAPI.dockerfile src/fastapi
