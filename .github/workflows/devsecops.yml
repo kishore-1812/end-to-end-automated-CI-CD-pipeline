@@ -50,7 +50,7 @@ jobs:
       - name: Run Checkov (IaC scan)
         run: |
           pip install checkov
-          checkov -d terraform/ -o json > checkov-report.json || echo "Checkov found issues"
+          checkov -d ../../src/terraform/ -o json > checkov-report.json || echo "Checkov found issues"
       - name: Upload Checkov report
         uses: actions/upload-artifact@v4
         with:
@@ -60,8 +60,9 @@ jobs:
       - name: Install and run Trivy scan
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-          run: docker build -t fastapi-app:latest -f ../../src/fastapi/fastAPI.dockerfile ../../src/fastapi
+          docker build -t fastapi-app:latest -f ../../src/fastapi/fastAPI.dockerfile ../../src/fastapi
           ./trivy image --severity HIGH,CRITICAL --exit-code 1 --format json --output trivy-report.json fastapi-app:latest || echo "Trivy found issues"
+
       - name: Upload Trivy report
         uses: actions/upload-artifact@v4
         with:
