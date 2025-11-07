@@ -111,10 +111,11 @@ jobs:
             curl --fail http://localhost:8000/health && break || sleep 3
           done
 
-      - name: Fix docker socket permissions
+      - name: Fix repo directory permissions
         run: |
-          sudo chown -R 1000:1000 /home/runner/work
-          sudo chmod -R 755 /home/runner/work
+          sudo chown -R 1000:1000 ${{ github.workspace }}
+          sudo chmod -R 755 ${{ github.workspace }}
+
 
       - name: Run OWASP ZAP baseline scan
         uses: zaproxy/action-baseline@v0.8.0
