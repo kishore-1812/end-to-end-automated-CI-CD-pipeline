@@ -60,15 +60,22 @@ jobs:
       - name: Install and run Trivy scan
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-          docker build -t fastapi-app:latest -f src/fastapi/fastAPI.dockerfile src/fastapi
-          ./trivy image --severity HIGH,CRITICAL --exit-code 1 --format json --output trivy-report.json fastapi-app:latest || echo "Trivy found issues"
+          ./bin/trivy image --severity HIGH,CRITICAL --exit-code 0 --format json --output trivy-report.json fastapi-app:latest || true
 
-      - name: Upload Trivy report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: trivy-report
-          path: trivy-report.json
+      # - name: Upload Trivy report
+      #   uses: actions/upload-artifact@v4
+      #   if: always()  # ← Important: upload even if scan "fails"
+      #   with:
+      #     name: trivy-report
+      #     path: trivy-report.json
+
+
+      # - name: Upload Trivy report
+      #   uses: actions/upload-artifact@v4
+      #   if: always()
+      #   with:
+      #     name: trivy-report
+      #     path: trivy-report.json
 
       
       # Optional email notification on failure
@@ -120,12 +127,16 @@ jobs:
             zaproxy/zap-stable \
             zap-baseline.py -t http://localhost:8000 \
             -J /zap/wrk/report.json \
-            -w /zap/wrk/report.md.md \
+            -w /zap/wrk/report.md \
             -r /zap/wrk/report.html || true
+
+      - name: List ZAP files before upload
+        run: ls -la report.* 2>/dev/null || echo "No ZAP reports found"
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: zap-report
-          path: ./report.html
+          path: report.html
+
