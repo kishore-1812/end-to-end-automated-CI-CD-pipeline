@@ -118,7 +118,7 @@ jobs:
       - name: Run OWASP ZAP baseline scan
         uses: zaproxy/action-baseline@v0.8.0
         with:
-          docker_name: 'securecodebox/zap'
+          docker_name: 'zaproxy/zap-stable'
           target: 'http://web:8000'
           fail_action: true
 
