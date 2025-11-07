@@ -111,6 +111,9 @@ jobs:
             curl --fail http://localhost:8000/health && break || sleep 3
           done
           
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --pasword-stdin
+        
       - name: Run OWASP ZAP baseline scan
         uses: zaproxy/action-baseline@v0.8.0
         with:
