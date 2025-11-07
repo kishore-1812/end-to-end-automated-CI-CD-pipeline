@@ -110,12 +110,11 @@ jobs:
           for i in {1..10}; do
             curl --fail http://localhost:8000/health && break || sleep 3
           done
-          
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Create ZAP reports directory
-        run: mkdir -p zap-reports && chmod 777 zap-reports
+      - name: Fix docker socket permissions
+        run: |
+          sudo chown -R 1000:1000 /home/runner/work
+          sudo chmod -R 755 /home/runner/work
 
       - name: Run OWASP ZAP baseline scan
         uses: zaproxy/action-baseline@v0.8.0
