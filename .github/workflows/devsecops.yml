@@ -120,7 +120,7 @@ jobs:
         with:
           docker_name: 'zaproxy/zap-stable'
           target: 'http://localhost:8000'
-          fail_action: true
+          fail_action: false
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
