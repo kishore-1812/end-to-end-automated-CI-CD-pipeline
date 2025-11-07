@@ -119,7 +119,7 @@ jobs:
         uses: zaproxy/action-baseline@v0.8.0
         with:
           docker_name: 'zaproxy/zap-stable'
-          target: 'http://web:8000'
+          target: 'http://localhost:8000'
           fail_action: true
 
       - name: Upload ZAP report
