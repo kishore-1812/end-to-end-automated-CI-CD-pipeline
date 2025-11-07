@@ -111,19 +111,15 @@ jobs:
             curl --fail http://localhost:8000/health && break || sleep 3
           done
 
-      - name: Fix repo directory permissions
+      - name: Run OWASP ZAP baseline scan (Docker)
         run: |
-          sudo chown -R 1000:1000 ${{ github.workspace }}
-          sudo chmod -R 755 ${{ github.workspace }}
-
-
-      - name: Run OWASP ZAP baseline scan
-        uses: zaproxy/action-baseline@v0.8.0
-        with:
-          docker_name: 'zaproxy/zap-stable'
-          target: 'http://localhost:8000'
-          fail_action: false
-          cmd_options: '-a'
+          docker run --network host \
+            -v ${{ github.workspace }}:/zap/wrk:rw \
+            zaproxy/zap-stable \
+            zap-baseline.py -t http://localhost:8000 \
+            -J /zap/wrk/report.json \
+            -w /zap/wrk/report.md.md \
+            -r /zap/wrk/report.html || true
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
