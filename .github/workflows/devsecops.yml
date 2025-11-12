@@ -117,6 +117,15 @@ jobs:
             -r /zap/wrk/report.html \
             -J /zap/wrk/report.json || true
 
+      # ADD THIS - Check ZAP logs FIRST
+      - name: Check ZAP container logs
+        run: |
+          echo "=== Checking for ZAP containers ==="
+          docker ps -a | grep -i zap || echo "No ZAP containers found"
+          
+          echo ""
+          echo "=== Checking docker volume mounts ==="
+          docker inspect $(docker ps -a --format "{{.ID}}" | head -1) 2>/dev/null | grep -A 10 "Mounts" || echo "Could not inspect container"
       - name: List workspace contents
         run: |
           echo "=== Current Working Directory ==="
