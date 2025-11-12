@@ -116,6 +116,8 @@ jobs:
             -J /zap/wrk/report.json \
             -w /zap/wrk/report.md \
             -r /zap/wrk/report.html || true
+            #    ↑ This path is inside the container
+
 
       - name: List ZAP files before upload
         run: ls -la report.* 2>/dev/null || echo "No ZAP reports found"
