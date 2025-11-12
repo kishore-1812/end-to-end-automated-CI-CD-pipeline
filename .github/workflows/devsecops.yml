@@ -111,13 +111,13 @@ jobs:
         run: |
           docker run --network host \
             --user root \
-            -v ${{ github.workspace }}:/zap/wrk:rw \
+            -v ${{ github.workspace }}:/reports:rw \
             zaproxy/zap-stable \
-            sh -c "
-              chmod 777 /zap/wrk && \
-              zap-baseline.py -t http://localhost:8000 \
-                -r /zap/wrk/report.html \
-                -J /zap/wrk/report.json
+            bash -c "
+              chmod 777 /reports && \
+              /zap/zap.sh -cmd \
+                -quickurl http://localhost:8000 \
+                -quickout /reports/report.html
             " || true
 
 
