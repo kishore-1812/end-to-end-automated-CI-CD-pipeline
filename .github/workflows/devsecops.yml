@@ -109,13 +109,17 @@ jobs:
 
       - name: Run OWASP ZAP baseline scan
         run: |
-          mkdir -p /tmp/zap-reports
           docker run --network host \
-            -v /tmp/zap-reports:/zap/wrk:rw \
+            --user root \
+            -v ${{ github.workspace }}:/zap/wrk:rw \
             zaproxy/zap-stable \
-            zap-baseline.py -t http://localhost:8000 \
-            -r /zap/wrk/report.html \
-            -J /zap/wrk/report.json || true
+            sh -c "
+              chmod 777 /zap/wrk && \
+              zap-baseline.py -t http://localhost:8000 \
+                -r /zap/wrk/report.html \
+                -J /zap/wrk/report.json
+            " || true
+
 
       # ADD THIS - Check ZAP logs FIRST
       - name: Check ZAP container logs
