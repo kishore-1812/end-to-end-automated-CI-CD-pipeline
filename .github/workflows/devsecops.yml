@@ -57,21 +57,37 @@ jobs:
           name: checkov-report
           path: checkov-report.json
 
+      # - name: Run Trivy scan
+      #   run: |
+      #     curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+      #     ./bin/trivy image fastapi-app:latest --format json --output trivy-report.json || true
+      #     # ↑ || true = "Run this command, and don't fail even if it returns exit code 1"
+
+      # - name: Verify file exists
+      #   run: ls -la trivy-report.json
+
+      # - name: Upload Trivy report
+      #   uses: actions/upload-artifact@v4
+      #   if: always()
+      #   with:
+      #     name: trivy-report
+      #     path: trivy-report.json  # ✅ File will exist now
       - name: Run Trivy scan
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-          ./bin/trivy image fastapi-app:latest --format json --output trivy-report.json || true
-          # ↑ || true = "Run this command, and don't fail even if it returns exit code 1"
+          ./bin/trivy image \
+            --severity LOW,MEDIUM,HIGH,CRITICAL \
+            --exit-code 0 \
+            --format json \
+            --output trivy-report.json \
+            fastapi-app:latest
 
-      - name: Verify file exists
-        run: ls -la trivy-report.json
+      - name: Generate Trivy summary
+        run: |
+          # Count by severity
+          echo "=== Trivy Scan Results ==="
+          cat trivy-report.json | jq '.Results[0].Misconfigurations | group_by(.Severity) | map({severity: .[0].Severity, count: length})'
 
-      - name: Upload Trivy report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: trivy-report
-          path: trivy-report.json  # ✅ File will exist now
 
 
       # - name: Upload Trivy report
