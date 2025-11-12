@@ -117,6 +117,24 @@ jobs:
             -r /zap/wrk/report.html \
             -J /zap/wrk/report.json || true
 
+      - name: List workspace contents
+        run: |
+          echo "=== Current Working Directory ==="
+          pwd
+          
+          echo ""
+          echo "=== Files in Workspace Root ==="
+          ls -la ${{ github.workspace }}/
+          
+          echo ""
+          echo "=== Looking for report files ==="
+          find ${{ github.workspace }} -name "report*" -o -name "*.html" -o -name "*.json" 2>/dev/null
+          
+          echo ""
+          echo "=== Check specific paths ==="
+          ls -la ${{ github.workspace }}/report.html 2>&1 || echo "report.html not found"
+          ls -la ${{ github.workspace }}/report.json 2>&1 || echo "report.json not found"
+
       - name: Copy reports to workspace
         run: |
           cp -v /tmp/zap-reports/report.html ${{ github.workspace }}/ || true
