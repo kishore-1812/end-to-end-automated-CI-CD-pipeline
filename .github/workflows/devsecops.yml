@@ -107,25 +107,25 @@ jobs:
             curl --fail http://localhost:8000/health && break || sleep 3
           done
 
-      - name: Run OWASP ZAP baseline scan (Docker)
+      - name: Run OWASP ZAP baseline scan
         run: |
+          mkdir -p /tmp/zap-reports
           docker run --network host \
-            -v ${{ github.workspace }}:/zap/wrk:rw \
+            -v /tmp/zap-reports:/zap/wrk:rw \
             zaproxy/zap-stable \
             zap-baseline.py -t http://localhost:8000 \
-            -J /zap/wrk/report.json \
-            -w /zap/wrk/report.md \
-            -r /zap/wrk/report.html || true
-            #    ↑ This path is inside the container
+            -r /zap/wrk/report.html \
+            -J /zap/wrk/report.json || true
 
-
-      - name: List ZAP files before upload
-        run: ls -la report.* 2>/dev/null || echo "No ZAP reports found"
+      - name: Copy reports to workspace
+        run: |
+          cp -v /tmp/zap-reports/report.html ${{ github.workspace }}/ || true
+          cp -v /tmp/zap-reports/report.json ${{ github.workspace }}/ || true
+          ls -la ${{ github.workspace }}/report.*
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: zap-report
-          path: report.html
-
+          path: ${{ github.workspace }}/report.html
