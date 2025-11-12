@@ -41,6 +41,7 @@ jobs:
         run: |
           pip install bandit
           bandit -r app/ -f json -o bandit-report.json || echo "Bandit found issues"
+
       - name: Upload Bandit report
         uses: actions/upload-artifact@v4
         with:
@@ -51,27 +52,17 @@ jobs:
         run: |
           pip install checkov
           checkov -d src/terraform/ -o json > checkov-report.json || echo "Checkov found issues"
+
       - name: Upload Checkov report
         uses: actions/upload-artifact@v4
         with:
           name: checkov-report
           path: checkov-report.json
 
-      # - name: Run Trivy scan
-      #   run: |
-      #     curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-      #     ./bin/trivy image fastapi-app:latest --format json --output trivy-report.json || true
-      #     # ↑ || true = "Run this command, and don't fail even if it returns exit code 1"
+      # ← ADD THIS: Build Docker image BEFORE Trivy
+      - name: Build FastAPI image
+        run: docker build -t fastapi-app:latest -f src/fastapi/fastAPI.dockerfile src/fastapi
 
-      # - name: Verify file exists
-      #   run: ls -la trivy-report.json
-
-      # - name: Upload Trivy report
-      #   uses: actions/upload-artifact@v4
-      #   if: always()
-      #   with:
-      #     name: trivy-report
-      #     path: trivy-report.json  # ✅ File will exist now
       - name: Run Trivy scan
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
@@ -82,45 +73,13 @@ jobs:
             --output trivy-report.json \
             fastapi-app:latest
 
-      - name: Generate Trivy summary
-        run: |
-          # Count by severity
-          echo "=== Trivy Scan Results ==="
-          cat trivy-report.json | jq '.Results[0].Misconfigurations | group_by(.Severity) | map({severity: .[0].Severity, count: length})'
+      - name: Upload Trivy report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-report
+          path: trivy-report.json
 
-
-
-      # - name: Upload Trivy report
-      #   uses: actions/upload-artifact@v4
-      #   if: always()  # ← Important: upload even if scan "fails"
-      #   with:
-      #     name: trivy-report
-      #     path: trivy-report.json
-
-
-      # - name: Upload Trivy report
-      #   uses: actions/upload-artifact@v4
-      #   if: always()
-      #   with:
-      #     name: trivy-report
-      #     path: trivy-report.json
-
-      
-      # Optional email notification on failure
-    #   - name: Send Email Notification on Failure
-    #     if: failure()
-    #     uses: dawidd6/action-send-mail@v3
-    #     with:
-    #       server_address: smtp.gmail.com
-    #       server_port: 587
-    #       username: ${{ secrets.MAIL_USERNAME }}
-    #       password: ${{ secrets.MAIL_PASSWORD }}
-    #       subject: Security Scan Alert in ${{ github.repository }}
-    #       body: |
-    #         Security scan failure in repository ${{ github.repository }}.
-    #         Workflow: ${{ github.workflow }}
-    #         Run: ${{ github.run_id }}
-    #         Check details at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   zap_scan:
     needs: build_and_scan
